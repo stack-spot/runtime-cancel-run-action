@@ -34,9 +34,11 @@ if r1.status_code == 200:
             headers=cancel_headers
         )
 
-    if r2.status_code == 200:
-        d2 = r2.json()
+    if r2.status_code == 202:
         print(f"- RUN {RUN_ID} cancelled successfully!")
+
+    elif r2.status_code == 404:
+        print(f"- RUN {RUN_ID} not found.")
 
     else:
         print("- Error cancelling run")
