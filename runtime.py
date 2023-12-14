@@ -1,10 +1,5 @@
 import os
 import requests
-from pathlib import Path
-
-def save_output(name: str, value: str): 
-    with open(os.environ['GITHUB_OUTPUT'], 'a') as output_file:
-        print(f'{name}={value}', file=output_file)
 
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_KEY = os.getenv("CLIENT_KEY")
