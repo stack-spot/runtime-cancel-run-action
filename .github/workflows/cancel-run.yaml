@@ -1,0 +1,41 @@
+name: Cancel Run by Env
+
+on:
+    workflow_dispatch:
+        inputs:
+          run_id:
+            description: "Run Id to cancel"
+            required: true
+          environment:
+            description: "qa or prod"
+            required: true
+            default: "prod"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+    cancel-run-prod:
+        runs-on: ubuntu-latest
+        if: ${{ inputs.environment == 'prod' }}
+        steps:
+          - name: Cancel run
+            uses: stack-spot/runtime-cancel-run-action@main
+            with:
+                CLIENT_ID: ${{ secrets.CLIENT_ID_PROD }}
+                CLIENT_KEY: ${{ secrets.CLIENT_KEY_PROD }}
+                CLIENT_REALM: ${{ secrets.CLIENT_REALM_PROD }}
+                RUN_ID: ${{ inputs.run_id }}
+
+    cancel-run-qa:
+        runs-on: ubuntu-latest
+        if: ${{ inputs.environment == 'qa' }}
+        steps:
+          - name: Cancel run
+            uses: stack-spot/runtime-cancel-run-action@qa
+            with:
+                CLIENT_ID: ${{ secrets.CLIENT_ID_QA }}
+                CLIENT_KEY: ${{ secrets.CLIENT_KEY_QA }}
+                CLIENT_REALM: ${{ secrets.CLIENT_REALM_QA }}
+                RUN_ID: ${{ inputs.run_id }}
