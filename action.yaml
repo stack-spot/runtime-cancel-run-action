@@ -1,0 +1,56 @@
+name: 'Runtime Cancel Run Action'
+
+description: 'Runtime Cancel Run Action'
+
+inputs:
+  CLIENT_ID:
+    description: Account client id
+    required: true
+  CLIENT_KEY:
+    description: Account client secret key
+    required: true
+  CLIENT_REALM:
+    description: Account client realm
+    required: true
+  RUN_ID:
+    description: RUN_ID to cancel
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check Runner
+      run: echo 🤖 OS runner is $(uname)
+      shell: bash
+        
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4.7.1
+      with:
+        python-version: '3.10' 
+    
+    - name: Install python libraries 
+      run: pip install requests
+      shell: bash
+    
+    - name: Setup STK CLI
+      uses: stack-spot/stk-cli-action@main
+      with:
+        client_id: ${{ inputs.CLIENT_ID }}
+        client_key: ${{ inputs.CLIENT_KEY }}
+        realm: ${{ inputs.CLIENT_REALM }}
+
+    - name: Cancel Run
+      env:
+        CLIENT_ID: ${{ inputs.CLIENT_ID }}
+        CLIENT_KEY: ${{ inputs.CLIENT_KEY }}
+        CLIENT_REALM: ${{ inputs.CLIENT_REALM }}
+        RUN_ID: ${{ inputs.RUN_ID }}
+      run: python3 $GITHUB_ACTION_PATH/runtime.py
+      shell: bash
+
+branding:
+    icon: 'terminal'
+    color: 'gray-dark'
