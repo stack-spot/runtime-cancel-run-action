@@ -2,10 +2,6 @@ name: Test Cancel Run - STG
 
 on:
   workflow_dispatch:
-    inputs:
-      run_id:
-        description: 'Run to Cancel'
-        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,9 +17,9 @@ jobs:
       - uses: stack-spot/runtime-manager-action@stg
         id: run
         with:
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_KEY: ${{ secrets.CLIENT_KEY }}
-          CLIENT_REALM: ${{ secrets.CLIENT_REALM }}
+          CLIENT_ID: ${{ secrets.STG_CLIENT_ID }}
+          CLIENT_KEY: ${{ secrets.STG_CLIENT_KEY }}
+          CLIENT_REALM: ${{ secrets.STG_CLIENT_REALM }}
           WORKSPACE: Runtimes
           ENVIRONMENT: production
           VERSION_TAG: ${{ github.sha }}
@@ -44,7 +40,7 @@ jobs:
       - name: Cancel run
         uses: stack-spot/runtime-cancel-run-action@stg
         with:
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_KEY: ${{ secrets.CLIENT_KEY }}
-          CLIENT_REALM: ${{ secrets.CLIENT_REALM }}
+          CLIENT_ID: ${{ secrets.STG_CLIENT_ID }}
+          CLIENT_KEY: ${{ secrets.STG_CLIENT_KEY }}
+          CLIENT_REALM: ${{ secrets.STG_CLIENT_REALM }}
           RUN_ID: ${{ needs.orchestration.outputs.run_id }}
