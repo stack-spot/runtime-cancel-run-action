@@ -55,7 +55,7 @@ pat_token= pat_request.json()["accessToken"]
 # Calling 
 
 cancel_headers = {"Authorization": f"Bearer {pat_token}", "Content-Type": "application/json"}
-cancel_run_url="https://runtime-manager.stg.stackspot.com/v1/run/cancel/{RUN_ID}"
+cancel_run_url=f"https://runtime-manager.stg.stackspot.com/v1/run/cancel/{RUN_ID}"
 
 cancel_request = requests.post(
         url=cancel_run_url, 
