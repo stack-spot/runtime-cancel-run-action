@@ -12,42 +12,67 @@ if None in inputs_list:
     print("- Some mandatory input is empty. Please, check the input list.")
     exit(1)
 
-idm_url = f"https://idm.stackspot.com/realms/{CLIENT_REALM}/protocol/openid-connect/token"
+# Accessing keycloak token in order to gain access to account-api
+print("Logging In...")
+idm_url = f"http://idm.stackspot.com/realms/{CLIENT_REALM}/protocol/openid-connect/token"
 idm_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 idm_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
 
-r1 = requests.post(
+login_req = requests.post(
         url=idm_url, 
         headers=idm_headers, 
         data=idm_data
     )
 
-if r1.status_code == 200:
-    d1 = r1.json()
-    access_token = d1["access_token"]
+if login_req.status_code != 200:
+    print("- Error during authentication")
+    print("- Status:", login_req.status_code)
+    print("- Error:", login_req.reason)
+    exit(1) 
+    
 
-    cancel_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+d1 = login_req.json()
+access_token = d1["access_token"]
 
-    cancel_run_url="https://runtime-manager.v1.stackspot.com/v1/run/cancel/{RUN_ID}"
-    r2 = requests.post(
-            url=cancel_run_url, 
-            headers=cancel_headers
-        )
+# Impersonating Token to verify needed permissions
 
-    if r2.status_code == 202:
-        print(f"- RUN {RUN_ID} cancelled successfully!")
+pat_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+pat_url = f"https://account.v1.stackspot.com/v1/authentication/personal-access-token-sa"
 
-    elif r2.status_code == 404:
-        print(f"- RUN {RUN_ID} not found.")
+pat_request = requests.post(
+        url = pat_url,
+        headers=pat_headers,
+    )
 
-    else:
-        print("- Error cancelling run")
-        print("- Status:", r2.status_code)
-        print("- Error:", r2.reason)
-        exit(1)
+if pat_request.status_code != 200:
+    print("- Error during authentication")
+    print("- Status:", pat_request.status_code)
+    print("- Error:", pat_request.reason)
+    exit(1) 
+
+pat_token= pat_request.json()["accessToken"]
+
+# Calling Cancel Action
+print("Cancelling Run...")
+cancel_headers = {"Authorization": f"Bearer {pat_token}", "Content-Type": "application/json"}
+cancel_run_url=f"https://runtime-manager.v1.stackspot.com/v1/run/cancel/{RUN_ID}"
+
+cancel_request = requests.post(
+        url=cancel_run_url, 
+        headers=cancel_headers
+    )
+
+if cancel_request.status_code == 202:
+    print(f"- RUN {RUN_ID} cancelled successfully!")
+
+elif cancel_request.status_code == 404:
+    print(f"- RUN {RUN_ID} not found.")
+
+elif cancel_request.status_code == 422:
+    print(f"- RUN {RUN_ID} not currently running. Unable to Abort.")
 
 else:
-    print("- Error during authentication")
-    print("- Status:", r1.status_code)
-    print("- Error:", r1.reason)
+    print("- Error cancelling run")
+    print("- Status:", cancel_request.status_code)
+    print("- Error:", cancel_request.reason)
     exit(1)
