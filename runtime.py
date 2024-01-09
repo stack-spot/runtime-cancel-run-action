@@ -14,7 +14,7 @@ if None in inputs_list:
 
 # Accessing keycloak token in order to gain access to account-api
 print("Logging In...")
-idm_url = f"http://idm.stackspot.com/realms/{CLIENT_REALM}/protocol/openid-connect/token"
+idm_url = f"https://idm.stackspot.com/realms/{CLIENT_REALM}/protocol/openid-connect/token"
 idm_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 idm_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
 
