@@ -5,6 +5,9 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_KEY = os.getenv("CLIENT_KEY")
 CLIENT_REALM = os.getenv("CLIENT_REALM")
 RUN_ID = os.getenv("RUN_ID")
+DEBUG_ENV = os.getenv("DEBUG", "False")
+
+is_debug = DEBUG_ENV.lower() in ('true', '1', 't')
 
 inputs_list = [CLIENT_ID, CLIENT_KEY, CLIENT_REALM, RUN_ID]
 
@@ -12,11 +15,18 @@ if None in inputs_list:
     print("- Some mandatory input is empty. Please, check the input list.")
     exit(1)
 
+if is_debug:
+    print("Debugging enabled")
+
 # Accessing keycloak token in order to gain access to account-api
 print("Logging In...")
 idm_url = f"https://idm.stackspot.com/realms/{CLIENT_REALM}/protocol/openid-connect/token"
 idm_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 idm_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
+
+if is_debug:
+    print(f"Credentials: client_id: ***** client_key: ***** realm: {CLIENT_REALM}")
+    print(f"Calling {idm_url}")
 
 login_req = requests.post(
         url=idm_url, 
@@ -25,19 +35,28 @@ login_req = requests.post(
     )
 
 if login_req.status_code != 200:
-    print("- Error during authentication")
+    print("- Error during idm authentication")
     print("- Status:", login_req.status_code)
     print("- Error:", login_req.reason)
+    print("- Response:", login_req.text)
     exit(1) 
     
+if is_debug:
+    print("IDM Token succesfully loaded")
 
 d1 = login_req.json()
 access_token = d1["access_token"]
+
+if is_debug:
+    print("Access Token:", access_token[0:10], "...")
 
 # Impersonating Token to verify needed permissions
 
 pat_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
 pat_url = f"https://account.v1.stackspot.com/v1/authentication/personal-access-token-sa"
+
+if is_debug:
+    print(f"Calling PAT token {pat_url}")
 
 pat_request = requests.post(
         url = pat_url,
@@ -48,9 +67,14 @@ if pat_request.status_code != 200:
     print("- Error during authentication")
     print("- Status:", pat_request.status_code)
     print("- Error:", pat_request.reason)
+    print("- Response:", pat_request.text)
     exit(1) 
 
 pat_token= pat_request.json()["accessToken"]
+
+if is_debug:
+    print("PAT Token succesfully loaded")
+    print("PAT Token:", pat_token[0:10], "...")
 
 # Calling Cancel Action
 print("Cancelling Run...")
@@ -75,4 +99,5 @@ else:
     print("- Error cancelling run")
     print("- Status:", cancel_request.status_code)
     print("- Error:", cancel_request.reason)
+    print("- Response:", cancel_request.text)
     exit(1)
