@@ -14,20 +14,21 @@ if None in inputs_list:
 
 # Accessing keycloak token in order to gain access to account-api
 print("Logging In...")
-idm_url = f"https://idm.stackspot.com/realms/{CLIENT_REALM}/protocol/openid-connect/token"
-idm_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-idm_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
+iam_url = f"https://iam-auth-ssr.prd.stackspot.com/{CLIENT_REALM}/oidc/oauth/token"
+iam_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+iam_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
 
 login_req = requests.post(
-        url=idm_url, 
-        headers=idm_headers, 
-        data=idm_data
+        url=iam_url, 
+        headers=iam_headers, 
+        data=iam_data
     )
 
 if login_req.status_code != 200:
     print("- Error during authentication")
     print("- Status:", login_req.status_code)
     print("- Error:", login_req.reason)
+    print("- Response:", login_req.text)
     exit(1) 
     
 
@@ -45,9 +46,10 @@ pat_request = requests.post(
     )
 
 if pat_request.status_code != 200:
-    print("- Error during authentication")
+    print("- Error during PAT authentication")
     print("- Status:", pat_request.status_code)
     print("- Error:", pat_request.reason)
+    print("- Response:", pat_request.text)
     exit(1) 
 
 pat_token= pat_request.json()["accessToken"]
@@ -75,4 +77,5 @@ else:
     print("- Error cancelling run")
     print("- Status:", cancel_request.status_code)
     print("- Error:", cancel_request.reason)
+    print("- Response:", cancel_request.text)
     exit(1)
