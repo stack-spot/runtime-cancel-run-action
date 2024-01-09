@@ -20,29 +20,29 @@ if is_debug:
 
 # Accessing keycloak token in order to gain access to account-api
 print("Logging In...")
-idm_url = f"https://idm.stackspot.com/realms/{CLIENT_REALM}/protocol/openid-connect/token"
-idm_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-idm_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
+iam_url = f"https://iam-auth-ssr.prd.stackspot.com/{CLIENT_REALM}/oidc/oauth/token"
+iam_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+iam_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
 
 if is_debug:
     print(f"Credentials: client_id: ***** client_key: ***** realm: {CLIENT_REALM}")
-    print(f"Calling {idm_url}")
+    print(f"Calling {iam_url}")
 
 login_req = requests.post(
-        url=idm_url, 
-        headers=idm_headers, 
-        data=idm_data
+        url=iam_url, 
+        headers=iam_headers, 
+        data=iam_data
     )
 
 if login_req.status_code != 200:
-    print("- Error during idm authentication")
+    print("- Error during iam authentication")
     print("- Status:", login_req.status_code)
     print("- Error:", login_req.reason)
     print("- Response:", login_req.text)
     exit(1) 
     
 if is_debug:
-    print("IDM Token succesfully loaded")
+    print("IAM Token succesfully loaded")
 
 d1 = login_req.json()
 access_token = d1["access_token"]
