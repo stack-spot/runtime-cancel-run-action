@@ -45,31 +45,31 @@ print("Access Token:", access_token[0:10], "...")
 
 # Impersonating Token to verify needed permissions
 
-pat_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
-pat_url = f"https://account.v1.stackspot.com/v1/authentication/personal-access-token-sa"
+# pat_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
+# pat_url = f"https://account.v1.stackspot.com/v1/authentication/personal-access-token-sa"
 
-print(f"Calling PAT token {pat_url}")
+# print(f"Calling PAT token {pat_url}")
 
-pat_request = requests.post(
-        url = pat_url,
-        headers=pat_headers,
-    )
+# pat_request = requests.post(
+#         url = pat_url,
+#         headers=pat_headers,
+#     )
 
-if pat_request.status_code != 200:
-    print("- Error during authentication")
-    print("- Status:", pat_request.status_code)
-    print("- Error:", pat_request.reason)
-    print("- Response:", pat_request.text)
-    exit(1) 
+# if pat_request.status_code != 200:
+#     print("- Error during authentication")
+#     print("- Status:", pat_request.status_code)
+#     print("- Error:", pat_request.reason)
+#     print("- Response:", pat_request.text)
+#     exit(1) 
 
-pat_token= pat_request.json()["accessToken"]
+# pat_token= pat_request.json()["accessToken"]
 
-print("PAT Token succesfully loaded")
-print("PAT Token:", pat_token[0:10], "...")
+# print("PAT Token succesfully loaded")
+# print("PAT Token:", pat_token[0:10], "...")
 
 # Calling Cancel Action
 print("Cancelling Run...")
-cancel_headers = {"Authorization": f"Bearer {pat_token}", "Content-Type": "application/json"}
+cancel_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
 cancel_run_url=f"https://runtime-manager.v1.stackspot.com/v1/run/cancel/{RUN_ID}"
 
 cancel_request = requests.post(
