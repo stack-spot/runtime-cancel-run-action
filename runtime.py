@@ -20,7 +20,7 @@ if is_debug:
 
 # Accessing keycloak token in order to gain access to account-api
 print("Logging In...")
-iam_url = f"https://iam-auth-ssr.prd.stackspot.com/{CLIENT_REALM}/oidc/oauth/token"
+iam_url = f"https://auth.stackspot.com/{CLIENT_REALM}/oidc/oauth/token"
 iam_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 iam_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
 
