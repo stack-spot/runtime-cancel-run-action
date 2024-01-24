@@ -14,7 +14,6 @@ if None in inputs_list:
     
 if RUN_ID == "":
     print("- RUN_ID was not provided.")
-    print("  Deployment was not successfully created.")
     print("  No need to cancel it.")
     exit(0)
 
