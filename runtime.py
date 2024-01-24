@@ -6,11 +6,16 @@ CLIENT_KEY = os.getenv("CLIENT_KEY")
 CLIENT_REALM = os.getenv("CLIENT_REALM")
 RUN_ID = os.getenv("RUN_ID")
 
-inputs_list = [CLIENT_ID, CLIENT_KEY, CLIENT_REALM, RUN_ID]
+inputs_list = [CLIENT_ID, CLIENT_KEY, CLIENT_REALM]
 
 if None in inputs_list:
-    print("- Some mandatory input is empty. Please, check the input list.")
+    print("- Some mandatory authentication input is empty. Please, check the input list.")
     exit(1)
+    
+if RUN_ID == "":
+    print("- RUN_ID was not provided.")
+    print("  No need to cancel it.")
+    exit(0)
 
 # Getting access token
 print("Authenticating..")
