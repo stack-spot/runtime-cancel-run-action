@@ -10,7 +10,7 @@ inputs_list = [CLIENT_ID, CLIENT_KEY, CLIENT_REALM, RUN_ID]
 
 print("Run Id: ", RUN_ID, ".")
 print("Type: ", type(RUN_ID), ".")
-
+exit(0)
 if None in inputs_list:
     print("- Some mandatory input is empty. Please, check the input list.")
     exit(1)
