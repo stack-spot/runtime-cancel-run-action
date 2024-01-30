@@ -12,7 +12,7 @@ if None in inputs_list:
     print("- Some mandatory authentication input is empty. Please, check the input list.")
     exit(1)
     
-if RUN_ID == "":
+if RUN_ID == "" or RUN_ID == None:
     print("- RUN_ID was not provided.")
     print("  No need to cancel it.")
     exit(0)
