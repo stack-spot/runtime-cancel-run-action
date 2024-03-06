@@ -18,49 +18,30 @@ if RUN_ID == "":
     print("  No need to cancel it.")
     exit(0)
 
-# Accessing keycloak token in order to gain access to account-api
-
-idm_url = f"https://account-keycloak.stg.stackspot.com/realms/{CLIENT_REALM}/protocol/openid-connect/token"
-idm_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-idm_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
+print("Authenticating..")
+iam_url = f"https://iam-auth-ssr.stg.stackspot.com/{CLIENT_REALM}/oidc/oauth/token"
+iam_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+iam_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
 
 login_req = requests.post(
-        url=idm_url, 
-        headers=idm_headers, 
-        data=idm_data
+        url=iam_url, 
+        headers=iam_headers, 
+        data=iam_data
     )
 
 if login_req.status_code != 200:
-    print("- Error during authentication")
+    print("- Error during iam authentication")
     print("- Status:", login_req.status_code)
     print("- Error:", login_req.reason)
+    print("- Response:", login_req.text)
     exit(1) 
-    
 
 d1 = login_req.json()
 access_token = d1["access_token"]
 
-# Impersonating Token to verify needed permissions
-
-pat_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
-pat_url = f"https://account-account-api.stg.stackspot.com/v1/authentication/personal-access-token-sa"
-
-pat_request = requests.post(
-        url = pat_url,
-        headers=pat_headers,
-    )
-
-if pat_request.status_code != 200:
-    print("- Error during authentication")
-    print("- Status:", pat_request.status_code)
-    print("- Error:", pat_request.reason)
-    exit(1) 
-
-pat_token= pat_request.json()["accessToken"]
-
 # Calling 
 
-cancel_headers = {"Authorization": f"Bearer {pat_token}", "Content-Type": "application/json"}
+cancel_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
 cancel_run_url=f"https://runtime-manager.stg.stackspot.com/v1/run/cancel/{RUN_ID}"
 
 cancel_request = requests.post(
