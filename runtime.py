@@ -19,7 +19,7 @@ if RUN_ID == "":
     exit(0)
 
 print("Authenticating..")
-iam_url = f"https://iam-auth-ssr.stg.stackspot.com/{CLIENT_REALM}/oidc/oauth/token"
+iam_url = f"https://iam-auth-ssr.dev.stackspot.com/{CLIENT_REALM}/oidc/oauth/token"
 iam_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 iam_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
 
@@ -42,7 +42,7 @@ access_token = d1["access_token"]
 # Calling 
 
 cancel_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
-cancel_run_url=f"https://runtime-manager.stg.stackspot.com/v1/run/cancel/{RUN_ID}"
+cancel_run_url=f"https://runtime-manager.dev.stackspot.com/v1/run/cancel/{RUN_ID}"
 
 cancel_request = requests.post(
         url=cancel_run_url, 
