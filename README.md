@@ -22,6 +22,7 @@ To get the account keys (`CLIENT_ID`, `CLIENT_KEY` and `CLIENT_REALM`), please l
           CLIENT_KEY: ${{ secrets.CLIENT_KEY }}
           CLIENT_REALM: ${{ secrets.CLIENT_REALM }}
           RUN_ID: run_id
+          FORCE_CANCEL: true
 ```
 
 * * *
