@@ -15,6 +15,10 @@ inputs:
   RUN_ID:
     description: RUN_ID to cancel
     required: true
+  FORCE_CANCEL:
+    description: 'Forces the cancel'
+    required: true
+    default: 'true'
 
 runs:
   using: "composite"
@@ -41,6 +45,7 @@ runs:
         CLIENT_KEY: ${{ inputs.CLIENT_KEY }}
         CLIENT_REALM: ${{ inputs.CLIENT_REALM }}
         RUN_ID: ${{ inputs.RUN_ID }}
+        FORCE_CANCEL: ${{ inputs.FORCE_CANCEL }}
       run: python3 $GITHUB_ACTION_PATH/runtime.py
       shell: bash
 
