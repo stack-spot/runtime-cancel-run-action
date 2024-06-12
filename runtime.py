@@ -5,6 +5,7 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_KEY = os.getenv("CLIENT_KEY")
 CLIENT_REALM = os.getenv("CLIENT_REALM")
 RUN_ID = os.getenv("RUN_ID")
+FORCE = os.getenv("FORCE_CANCEL")
 
 inputs_list = [CLIENT_ID, CLIENT_KEY, CLIENT_REALM]
 
@@ -42,7 +43,9 @@ access_token = d1["access_token"]
 # Calling 
 
 cancel_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
-cancel_run_url=f"https://runtime-manager.stg.stackspot.com/v1/run/cancel/{RUN_ID}"
+cancel_run_url=f"https://runtime-manager.stg.stackspot.com/v1/run/cancel/{RUN_ID}?force={FORCE}"
+
+print(f"Requesting Run {RUN_ID} to be cancelled")
 
 cancel_request = requests.post(
         url=cancel_run_url, 
