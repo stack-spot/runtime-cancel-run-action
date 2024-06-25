@@ -42,7 +42,7 @@ access_token = d1["access_token"]
 
 # Calling Cancel Action
 print("Cancelling Run...")
-cancel_headers = {"Authorization": f"Bearer {pat_token}", "Content-Type": "application/json"}
+cancel_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
 cancel_run_url=f"https://runtime-manager.v1.stackspot.com/v1/run/cancel/{RUN_ID}?force={FORCE}"
 
 print(f"Requesting Run {RUN_ID} to be cancelled")
