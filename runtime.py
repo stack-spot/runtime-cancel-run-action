@@ -65,6 +65,9 @@ try:
     elif cancel_request.status_code == 404:
         print(f"- RUN {RUN_ID} not found.")
 
+    elif cancel_request.status_code == 422:
+        print(f"- RUN {RUN_ID} is already finished, no need to abort")
+
     else:
         print("- Error cancelling run")
         print("- Status:", cancel_request.status_code)
