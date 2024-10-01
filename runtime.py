@@ -51,7 +51,6 @@ access_token = d1["access_token"]
 auth_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
 cancel_run_url=f"{API_URL}/v1/run/cancel/{RUN_ID}?force=true"
 
-
 print(f"Requesting Run {RUN_ID} to be cancelled")
 
 try:

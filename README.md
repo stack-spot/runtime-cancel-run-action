@@ -76,6 +76,7 @@ Field | Description
   ```
 </details>
 
+
 ## License
 
 [Apache License 2.0](https://github.com/stack-spot/runtime-cancel-run-action/blob/main/LICENSE)
