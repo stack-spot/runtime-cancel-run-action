@@ -20,6 +20,11 @@ inputs:
     required: true
     default: 'true'
 
+outputs:
+  run_data:
+    description: "Run data after execution"
+    value: ${{ steps.cancel.outputs.run_data }}
+
 runs:
   using: "composite"
   steps:
@@ -40,6 +45,7 @@ runs:
       shell: bash
 
     - name: Cancel Run
+      id: cancel
       env:
         CLIENT_ID: ${{ inputs.CLIENT_ID }}
         CLIENT_KEY: ${{ inputs.CLIENT_KEY }}
