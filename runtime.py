@@ -14,7 +14,7 @@ FORCE = os.getenv("FORCE_CANCEL")
 
 inputs_list = [CLIENT_ID, CLIENT_KEY, CLIENT_REALM]
 
-API_URL = "https://runtime-manager.v1.stackspot.com"
+API_URL = "https://runtime-manager.stg.stackspot.com"
 
 if None in inputs_list:
     print("- Some mandatory input is empty. Please, check the input list.")
