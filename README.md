@@ -16,14 +16,14 @@ To get the account keys (`CLIENT_ID`, `CLIENT_KEY` and `CLIENT_REALM`), please l
 
 ```yaml
     steps:
-      - uses: stack-spot/runtime-cancel-run-action@v1    outputs:
-      tasks: ${{ steps.run.outputs.tasks }}
-      run_id: ${{ steps.run.outputs.run_id }}
+      - uses: stack-spot/runtime-cancel-run-action@v1    
+        outputs:
+          run_data: <workdir>/run_data_output.json
         with:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_KEY: ${{ secrets.CLIENT_KEY }}
           CLIENT_REALM: ${{ secrets.CLIENT_REALM }}
-          RUN_ID: run_id
+          RUN_ID: ${{ needs.run.outputs.run_id }}
           FORCE_CANCEL: true
 ```
 
@@ -42,10 +42,10 @@ Field | Mandatory | Default Value | Observation
 ## ▶️ Action Outputs
 Field | Description
 ----- | -----------
-**run_data** | Returns json output with the run data after its cancelled
+**run_data** | Returns json file output with the run data after its cancelled. At /{{workdir}}/run_data_output.json
 
 <details>
-  <summary>Output run_data json structure</summary>
+  <summary>Output run_data json file structure</summary>
 
   ```json
   {

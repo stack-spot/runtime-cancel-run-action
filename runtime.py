@@ -51,7 +51,6 @@ access_token = d1["access_token"]
 auth_headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
 cancel_run_url=f"{API_URL}/v1/run/cancel/{RUN_ID}?force=true"
 
-
 print(f"Requesting Run {RUN_ID} to be cancelled")
 
 try:
@@ -83,7 +82,13 @@ finally:
     )
 
     if run_data_req.status_code == 200:
-        save_output('run_data', run_data_req.text)
+        output_path = './run_data_output.json'
+        absolute_output_path = os.path.abspath(output_path)
+
+        with open(absolute_output_path, 'w') as output_file:
+            print(f'{run_data_req.text}', file=output_file)
+
+        save_output('run_data', absolute_output_path)
     else:
         print("- Error fetching run data, unable to create output")
         print("- Status:", run_data_req.status_code)
