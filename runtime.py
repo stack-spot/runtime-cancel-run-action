@@ -40,7 +40,7 @@ URLS = {
     }
 }
 
-def get_urls() -> List[str, str]: 
+def get_urls() -> List[str]: 
     urls = None
     if BETA_ENVIRONMENT == 'dev' or BETA_ENVIRONMENT == 'stg':
         urls = URLS[BETA_ENVIRONMENT]
