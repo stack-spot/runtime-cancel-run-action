@@ -19,6 +19,10 @@ inputs:
     description: 'Forces the cancel'
     required: true
     default: 'true'
+  BETA_ENVIRONMENT:
+    description: "Used internally by statckspot to test beta version (default, stg, dev)."
+    required: false
+    default: 'default'
 
 outputs:
   run_data:
