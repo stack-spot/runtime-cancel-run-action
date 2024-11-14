@@ -19,6 +19,10 @@ inputs:
     description: 'Forces the cancel'
     required: true
     default: 'true'
+  BETA_ENVIRONMENT:
+    description: "Used internally by statckspot to test beta version (default, stg, dev)."
+    required: false
+    default: 'default'
 
 outputs:
   run_data:
@@ -52,6 +56,7 @@ runs:
         CLIENT_REALM: ${{ inputs.CLIENT_REALM }}
         RUN_ID: ${{ inputs.RUN_ID }}
         FORCE_CANCEL: ${{ inputs.FORCE_CANCEL }}
+        BETA_ENVIRONMENT: ${{ inputs.BETA_ENVIRONMENT }}
       run: python3 $GITHUB_ACTION_PATH/runtime.py
       shell: bash
 

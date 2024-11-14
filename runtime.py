@@ -1,4 +1,5 @@
 import os
+from typing import List
 import requests
 
 def save_output(name: str, value: str):
@@ -10,11 +11,9 @@ CLIENT_KEY = os.getenv("CLIENT_KEY")
 CLIENT_REALM = os.getenv("CLIENT_REALM")
 RUN_ID = os.getenv("RUN_ID")
 FORCE = os.getenv("FORCE_CANCEL")
-
+BETA_ENVIRONMENT = os.getenv("BETA_ENVIRONMENT")
 
 inputs_list = [CLIENT_ID, CLIENT_KEY, CLIENT_REALM]
-
-API_URL = "https://runtime-manager.v1.stackspot.com"
 
 if None in inputs_list:
     print("- Some mandatory input is empty. Please, check the input list.")
@@ -26,8 +25,35 @@ if RUN_ID == "":
     print("  No need to cancel it.")
     exit(0)
 
+URLS = {
+    "stg" : {
+        "API_URL":  "https://runtime-manager.stg.stackspot.com",
+        "AUTH_URL": "https://iam-auth-ssr.stg.stackspot.com"
+    },
+    "dev" : {
+        "API_URL":  "https://runtime-manager.dev.stackspot.com",
+        "AUTH_URL": "https://iam-auth-ssr.dev.stackspot.com"
+    },
+    "default" : {
+        "API_URL":  "https://runtime-manager.v1.stackspot.com",
+        "AUTH_URL": "https://auth.stackspot.com"
+    }
+}
+
+def get_urls() -> List[str]: 
+    urls = None
+    if BETA_ENVIRONMENT == 'dev' or BETA_ENVIRONMENT == 'stg':
+        urls = URLS[BETA_ENVIRONMENT]
+    else:
+        urls = URLS['default']
+
+    return [urls["API_URL"], urls["AUTH_URL"]]
+
+
+API_URL, AUTH_URL = get_urls()
+
 print("Authenticating..")
-iam_url = f"https://auth.stackspot.com/{CLIENT_REALM}/oidc/oauth/token"
+iam_url = f"{AUTH_URL}/{CLIENT_REALM}/oidc/oauth/token"
 iam_headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 iam_data = { "client_id":f"{CLIENT_ID}", "grant_type":"client_credentials", "client_secret":f"{CLIENT_KEY}" }
 
