@@ -103,8 +103,6 @@ runs:
             client_secret: CLIENT_KEY
           });
 
-          const fetch = require('fetch');
-
           const authenticate = async () => {
             const loginReq = await fetch(iamUrl, {
               method: 'POST',
