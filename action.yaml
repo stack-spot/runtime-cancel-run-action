@@ -35,11 +35,15 @@ runs:
     - name: Cancel Run
       id: cancel
       uses: actions/github-script@v7
+      env:
+        CLIENT_ID: ${{ inputs.CLIENT_ID }}
+        CLIENT_KEY: ${{ inputs.CLIENT_KEY }}
+        CLIENT_REALM: ${{ inputs.CLIENT_REALM }}
       with:
         script: |
-          const CLIENT_ID = core.getInput('CLIENT_ID');
-          const CLIENT_KEY = core.getInput('CLIENT_KEY');
-          const CLIENT_REALM = core.getInput('CLIENT_REALM');
+          const CLIENT_ID = process.env.CLIENT_ID;
+          const CLIENT_KEY = process.env.CLIENT_KEY;
+          const CLIENT_REALM = process.env.CLIENT_REALM;
           const RUN_ID = core.getInput('RUN_ID');
           const FORCE = core.getInput('FORCE_CANCEL') || 'true';
           const BETA_ENVIRONMENT = core.getInput('BETA_ENVIRONMENT') || 'default';
