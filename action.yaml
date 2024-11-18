@@ -40,7 +40,7 @@ runs:
         CLIENT_KEY: ${{ inputs.CLIENT_KEY }}
         CLIENT_REALM: ${{ inputs.CLIENT_REALM }}
         RUN_ID: ${{ inputs.RUN_ID }}
-        FORCE: ${{ inputs.FORCE }}
+        FORCE_CANCEL: ${{ inputs.FORCE_CANCEL }}
         BETA_ENVIRONMENT: ${{ inputs.BETA_ENVIRONMENT }}
       with:
         script: |
@@ -50,6 +50,13 @@ runs:
           const RUN_ID = process.env.RUN_ID;
           const FORCE = process.env.FORCE_CANCEL || 'true';
           const BETA_ENVIRONMENT = process.env.BETA_ENVIRONMENT || 'default';
+
+          console.log("CLIENT_ID:", CLIENT_ID);
+          console.log("CLIENT_KEY:", CLIENT_KEY);
+          console.log("CLIENT_REALM:", CLIENT_REALM);
+          console.log("RUN_ID:", RUN_ID);
+          console.log("FORCE:", FORCE);
+          console.log("BETA_ENVIRONMENT:", BETA_ENVIRONMENT);
 
           if (!CLIENT_ID || !CLIENT_KEY || !CLIENT_REALM) {
             core.setFailed("- Some mandatory input is empty. Please, check the input list.");
