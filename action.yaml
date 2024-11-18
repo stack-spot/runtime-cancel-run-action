@@ -32,33 +32,131 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Check Runner
-      run: echo 🤖 OS runner is $(uname)
-      shell: bash
-        
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Setup Python
-      uses: actions/setup-python@v4.7.1
-      with:
-        python-version: '3.10' 
-    
-    - name: Install python libraries 
-      run: pip install requests
-      shell: bash
-
     - name: Cancel Run
       id: cancel
-      env:
-        CLIENT_ID: ${{ inputs.CLIENT_ID }}
-        CLIENT_KEY: ${{ inputs.CLIENT_KEY }}
-        CLIENT_REALM: ${{ inputs.CLIENT_REALM }}
-        RUN_ID: ${{ inputs.RUN_ID }}
-        FORCE_CANCEL: ${{ inputs.FORCE_CANCEL }}
-        BETA_ENVIRONMENT: ${{ inputs.BETA_ENVIRONMENT }}
-      run: python3 $GITHUB_ACTION_PATH/runtime.py
-      shell: bash
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const CLIENT_ID = core.getInput('CLIENT_ID');
+          const CLIENT_KEY = core.getInput('CLIENT_KEY');
+          const CLIENT_REALM = core.getInput('CLIENT_REALM');
+          const RUN_ID = core.getInput('RUN_ID');
+          const FORCE = core.getInput('FORCE_CANCEL') || 'true';
+          const BETA_ENVIRONMENT = core.getInput('BETA_ENVIRONMENT') || 'default';
+
+          if (!CLIENT_ID || !CLIENT_KEY || !CLIENT_REALM) {
+            core.setFailed("- Some mandatory input is empty. Please, check the input list.");
+            return;
+          }
+
+          if (!RUN_ID) {
+            console.log("- RUN_ID was not provided.");
+            console.log("  Deployment was not successfully created.");
+            console.log("  No need to cancel it.");
+            return;
+          }
+
+          const URLS = {
+            "stg": {
+              "API_URL": "https://runtime-manager.stg.stackspot.com",
+              "AUTH_URL": "https://iam-auth-ssr.stg.stackspot.com"
+            },
+            "dev": {
+              "API_URL": "https://runtime-manager.dev.stackspot.com",
+              "AUTH_URL": "https://iam-auth-ssr.dev.stackspot.com"
+            },
+            "default": {
+              "API_URL": "https://runtime-manager.v1.stackspot.com",
+              "AUTH_URL": "https://auth.stackspot.com"
+            }
+          };
+
+          const getUrls = () => {
+            if (BETA_ENVIRONMENT === 'dev' || BETA_ENVIRONMENT === 'stg') {
+              return URLS[BETA_ENVIRONMENT];
+            }
+            return URLS['default'];
+          };
+
+          const { API_URL, AUTH_URL } = getUrls();
+
+          console.log("Authenticating..");
+          const iamUrl = `${AUTH_URL}/${CLIENT_REALM}/oidc/oauth/token`;
+          const iamHeaders = { 'Content-Type': 'application/x-www-form-urlencoded' };
+          const iamData = new URLSearchParams({
+            client_id: CLIENT_ID,
+            grant_type: 'client_credentials',
+            client_secret: CLIENT_KEY
+          });
+
+          const fetch = require('node-fetch');
+
+          const authenticate = async () => {
+            const loginReq = await fetch(iamUrl, {
+              method: 'POST',
+              headers: iamHeaders,
+              body: iamData
+            });
+
+            if (!loginReq.ok) {
+              core.setFailed(`- Error during IAM authentication: ${loginReq.status} ${loginReq.statusText}`);
+              return null;
+            }
+
+            const d1 = await loginReq.json();
+            return d1.access_token;
+          };
+
+          const cancelRun = async (accessToken) => {
+            const authHeaders = { "Authorization": `Bearer ${accessToken}`, "Content-Type": "application/json" };
+            const cancelRunUrl = `${API_URL}/v1/run/cancel/${RUN_ID}?force=true`;
+
+            console.log(`Requesting Run ${RUN_ID} to be cancelled`);
+
+            const cancelRequest = await fetch(cancelRunUrl, {
+              method: 'POST',
+              headers: authHeaders
+            });
+
+            if (cancelRequest.status === 202) {
+              console.log(`- RUN ${RUN_ID} cancelled successfully!`);
+            } else if (cancelRequest.status === 404) {
+              console.log(`- RUN ${RUN_ID} not found.`);
+            } else if (cancelRequest.status === 422) {
+              console.log(`- RUN ${RUN_ID} is already finished, no need to abort`);
+            } else {
+              core.setFailed(`- Error cancelling run: ${cancelRequest.status} ${cancelRequest.statusText}`);
+            }
+          };
+
+          const fetchRunData = async (accessToken) => {
+            const authHeaders = { "Authorization": `Bearer ${accessToken}`, "Content-Type": "application/json" };
+            const fetchRunDataUrl = `${API_URL}/v1/run/${RUN_ID}`;
+
+            const runDataReq = await fetch(fetchRunDataUrl, {
+              method: 'GET',
+              headers: authHeaders
+            });
+
+            if (runDataReq.ok) {
+              const runData = await runDataReq.text();
+              const fs = require('fs');
+              const outputPath = './run_data_output.json';
+              fs.writeFileSync(outputPath, runData);
+              console.log(`Run data saved to ${outputPath}`);
+              core.setOutput('run_data', outputPath);
+            } else {
+              core.setFailed(`- Error fetching run data: ${runDataReq.status} ${runDataReq.statusText}`);
+            }
+          };
+
+          (async () => {
+            const accessToken = await authenticate();
+            if (accessToken) {
+              await cancelRun(accessToken);
+              await fetchRunData(accessToken);
+            }
+          })();
 
 branding:
     icon: 'terminal'
