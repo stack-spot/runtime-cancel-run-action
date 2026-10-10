@@ -1,0 +1,41 @@
+stages:
+  - cancel_run
+
+variables:
+  CLIENT_ID: $CLIENT_ID
+  CLIENT_KEY: $CLIENT_KEY
+  CLIENT_REALM: $CLIENT_REALM
+  RUN_ID: $RUN_ID
+  FORCE_CANCEL: ${FORCE_CANCEL:-'true'}
+
+cancel_run:
+  stage: cancel_run
+  script:
+    - echo "🤖 OS runner is $(uname)"
+    - git clone $CI_REPOSITORY_URL .
+    - apt-get update && apt-get install -y python3 python3-pip
+    - pip3 install requests
+    - |
+      cat <<EOF > runtime.py
+      import os
+      import requests
+
+      client_id = os.getenv('CLIENT_ID')
+      client_key = os.getenv('CLIENT_KEY')
+      client_realm = os.getenv('CLIENT_REALM')
+      run_id = os.getenv('RUN_ID')
+      force_cancel = os.getenv('FORCE_CANCEL')
+
+      url = f"https://api.example.com/{client_realm}/runs/{run_id}/cancel"
+      headers = {
+          'Authorization': f'Bearer {client_key}',
+          'Content-Type': 'application/json'
+      }
+      data = {
+          'force': force_cancel
+      }
+
+      response = requests.post(url, headers=headers, json=data)
+      print(response.status_code, response.text)
+      EOF
+    - python3 runtime.py
